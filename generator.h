@@ -17,9 +17,14 @@ public:
     int capacity;
     std::vector<int> bricks;
 
-    Bucket(int, Choices) noexcept;
-    Bucket(const Bucket&) noexcept;
-    Bucket(Bucket&&) noexcept;
+    static Bucket New(int cap, int free_space, Choices bricks);
+
+    Bucket(int cap, std::vector<int>& bricks) noexcept;
+    Bucket(const Bucket& other) noexcept;
+    Bucket(Bucket&& other) noexcept;
+
+    bool is_full();
+    bool is_empty();
 };
 
 
@@ -30,7 +35,8 @@ public:
 
 
 Choices get_random_colors(int k);
-Test shuffle_test(Test &t);
+
+Test& shuffle_test(Test &t, int moves);
 
 /*
  * generate_test tworzy pojedyńczy problem do rozwiązania
@@ -39,6 +45,6 @@ Test shuffle_test(Test &t);
  * @param k - liczba kolorów (łącznie nie może być więcej niż n klocków danego koloru)
  *
  */
-Test generate_test(int n, int k);
+Test generate_test(int n, int k, int min_p, int max_p, int min_free_space, int max_free_space, int shuffle_moves);
 
 #endif //AAL_GENERATOR_H
