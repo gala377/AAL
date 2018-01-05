@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <utility>
-
+#include <string>
 
 namespace generator {
 
@@ -28,6 +28,8 @@ namespace generator {
 
         Bucket(Bucket &&other) noexcept;
 
+        Bucket();
+
         bool is_full();
 
         bool is_empty();
@@ -36,6 +38,7 @@ namespace generator {
 
     class Test {
     public:
+        int k = 0;
         std::vector<Bucket> buckets;
 
         Test() = default;
@@ -43,7 +46,7 @@ namespace generator {
         /*
          * Reads test data from file
          * File should be in format
-         * n
+         * n k
          * p0 k0
          * i0
          * i1
@@ -57,7 +60,7 @@ namespace generator {
          * pn-1 kn-1
          * ...
          *
-         * Where n - num of buckets
+         * Where n - num of buckets, k - num of colors
          * pn is bucket capacity, kn is num of bricks currently in the bucket and i is brick id
          */
         Test(std::string filename);

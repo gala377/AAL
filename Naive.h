@@ -4,15 +4,17 @@
 
 #ifndef AAL_NAIVE_H
 #define AAL_NAIVE_H
-#include "generator.h
-
+#include "generator.h"
+#include <set>
 
 namespace algorithm {
 
     class Bucket : public generator::Bucket {
     public:
+        Bucket(const generator::Bucket& other, int k);
 
-
+        std::set<int> accepted;
+        std::set<int> unneeded;
     };
 
     class Naive {
@@ -21,8 +23,10 @@ namespace algorithm {
 
         int run();
 
+        friend std::ostream &operator<<(std::ostream &out, const Naive &n);
     private:
-
+        int k;
+        std::vector<Bucket> buckets;
     };
 
 }
