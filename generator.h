@@ -11,6 +11,8 @@
 
 namespace generator {
 
+    //TODO zmienic pisanie do i czytanie z pliku na wypisywanie do i czytanie ze strumienia
+
     using Choices = std::vector<std::pair<int, int>>;
     using Choice = std::pair<int, int>;
 
@@ -23,11 +25,8 @@ namespace generator {
         static Bucket New(int cap, int free_space, Choices bricks);
 
         Bucket(int cap, std::vector<int> &bricks) noexcept;
-
         Bucket(const Bucket &other) noexcept;
-
         Bucket(Bucket &&other) noexcept;
-
         Bucket();
 
         bool is_full();

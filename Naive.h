@@ -15,6 +15,9 @@ namespace algorithm {
 
         std::set<int> accepted;
         std::set<int> unneeded;
+
+        auto accepted_end() -> decltype(accepted.end());
+
     };
 
     class Naive {
@@ -22,8 +25,11 @@ namespace algorithm {
         explicit Naive(const generator::Test &t);
 
         int run();
+        bool resolved();
 
+        friend int move(int ab_index, int bb_index, Naive& alg);
         friend std::ostream &operator<<(std::ostream &out, const Naive &n);
+        friend int move_unneeded_bricks(int bucket_index, Naive& alg);
     private:
         int k;
         std::vector<Bucket> buckets;
