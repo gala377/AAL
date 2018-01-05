@@ -4,6 +4,10 @@
 #include <algorithm>
 #include <iostream>
 #include "generator.h"
+#include <fstream>
+
+
+using namespace generator;
 
 
 Bucket::Bucket(Bucket&& other) noexcept {
@@ -37,6 +41,58 @@ Bucket Bucket::New(int capacity, int free_space, Choices bricks) {
 }
 
 
+Test::Test(std::string filename) {
+    std::fstream file;
+    file.open(filename, std::fstream::in);
+    if(file.is_open()) {
+        int n = 0;
+        file >> n;
+        for (int i = 0; i < n; ++i) {
+            int cap, occupied;
+            file >> cap >> occupied;
+            std::vector<int> bricks;
+            for (int j = 0; j < occupied; ++j) {
+                int brick;
+                file >> brick;
+                bricks.push_back(brick);
+            }
+            buckets.emplace_back(Bucket(cap, bricks));
+        }
+        file.close();
+    }
+}
+
+void Test::dump_to_file(std::string filename) {
+    std::ofstream file(filename);
+    if(file.is_open()) {
+        file << buckets.size() << std::endl;
+        for (auto&& bucket : buckets) {
+            file << bucket.capacity << " " << bucket.bricks.size() << std::endl;
+            for (auto&& brick : bucket.bricks) {
+                file << brick << std::endl;
+            }
+        }
+        file.close();
+    } else {
+        throw std::ios_base::failure("Could not open file to write the test to");
+    }
+}
+
+std::ostream &operator<<(std::ostream &out, const Test &t) {
+    for(int i = 0; i < t.buckets.size(); ++i) {
+        unsigned long free_space = t.buckets[i].capacity - t.buckets[i].bricks.size();
+        std::cout << "\nBucket " << i << "\tCapacity: " << t.buckets[i].capacity << "\tFree: " << free_space << "\n";
+        for (auto const &brick : t.buckets[i].bricks) {
+            std::cout << brick << "\t";
+        }
+        for (free_space; free_space > 0; --free_space) {
+            std::cout << "x\t";
+        }
+    }
+    return out;
+}
+
+
 Test generate_test(int n, int k, int min_p, int max_p, int min_free_space, int max_free_space, int shuffle_moves) {
     Test test = Test();
 
@@ -57,23 +113,24 @@ Test generate_test(int n, int k, int min_p, int max_p, int min_free_space, int m
     return test;
 }
 
-
 Test& shuffle_test(Test &t, int moves) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, t.buckets.size()-1);
 
     for(int i = 0; i < moves; ++i) {
-        Bucket& a = t.buckets[dis(gen)];
-        Bucket& b = t.buckets[dis(gen)];
-        std::cout << "Shuffle " << i << "\n";
+        int bucketindex = dis(gen);
+        Bucket& a = t.buckets[bucketindex];
+        Bucket& b = t.buckets[(bucketindex+1) % t.buckets.size()];
+
         if (b.is_full() or a.is_empty()) {
-            std::cout << "Skipping\n";
             continue;
         }
+
         b.bricks.push_back(a.bricks.back());
         a.bricks.pop_back();
     }
+
     return t;
 }
 
