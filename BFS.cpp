@@ -4,6 +4,7 @@
 
 #include "BFS.h"
 #include <algorithm>
+#include <queue>
 
 alghorithm::Bucket::Bucket(const generator::Bucket &other) : capacity(other.capacity) {
     for(auto &&brick : other.bricks) {
@@ -46,22 +47,30 @@ alghorithm::BFS::BFS(const generator::Test &t) : k(t.k), initial(t) {
 }
 
 int alghorithm::BFS::run() {
-    // BFS happens
-    return 0;
+    std::queue<State> pending;
+    pending.push(this->initial);
+
+    while(!pending.empty()) {
+        State current = pending.front();
+        pending.pop();
+        visited.insert(current.hash());
+
+    }
+
 }
 
-std::set<std::size_t> alghorithm::BFS::gen_states(alghorithm::State &s) {
-    std::set<std::size_t> states;
+std::vector<alghorithm::State> alghorithm::BFS::gen_states(alghorithm::State &s) {
+    std::vector<State> states;
     for (int i = 0; i < s.buckets.size(); ++i) {
         for (auto &&brick: s.buckets[i].bricks) {
             int left = --i < 0 ? s.buckets.size()-1 : i;
             int right = ++i % s.buckets.size();
 
             if(!s.buckets[left].is_full()) {
-                states.insert(s.move(i, left, brick).hash());
+                states.push_back(s.move(i, left, brick));
             }
             if(!s.buckets[right].is_full()) {
-                states.insert(s.move(i, right, brick).hash());
+                states.push_back(s.move(i, right, brick));
             }
         }
     }

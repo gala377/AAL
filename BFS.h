@@ -55,7 +55,7 @@ namespace alghorithm {
         State initial;
         std::set<std::size_t> visited;
 
-        std::set<std::size_t> gen_states(State& s);
+        std::vector<State> gen_states(State& s);
     };
 
 }
