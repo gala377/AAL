@@ -8,21 +8,20 @@
 #include <set>
 
 namespace algorithm {
-
-    class Bucket : public generator::Bucket {
-    public:
-
-        Bucket(const generator::Bucket& other, int k);
-
-        std::set<int> accepted;
-        std::multiset<int> unneeded;
-
-        auto accepted_end() -> decltype(accepted.end());
-
-    };
-
     class Naive {
     public:
+        class Bucket : public generator::Bucket {
+        public:
+
+            Bucket(const generator::Bucket& other, int k);
+
+            std::set<int> accepted;
+            std::multiset<int> unneeded;
+
+            auto accepted_end() -> decltype(accepted.end());
+
+        };
+
         const int iteration_limit = 1000000;
 
         explicit Naive(const generator::Test &t);

@@ -10,7 +10,7 @@ namespace algorithm {
 
     Naive::Naive(const generator::Test &t) : k(t.k) {
         for (auto &&bucket : t.buckets) {
-            buckets.emplace_back(Bucket(bucket, k));
+            buckets.push_back(Bucket(bucket, k));
         }
     }
 
@@ -143,7 +143,7 @@ namespace algorithm {
     }
 
 
-    Bucket::Bucket(const generator::Bucket &other, int k) : generator::Bucket(other) {
+    Naive::Bucket::Bucket(const generator::Bucket &other, int k) : generator::Bucket(other) {
         int countmap[k] = {0};
         for (auto &brick : bricks) {
             countmap[brick]++;
@@ -158,7 +158,7 @@ namespace algorithm {
         }
     }
 
-    auto Bucket::accepted_end() -> decltype(accepted.end()) {
+    auto Naive::Bucket::accepted_end() -> decltype(accepted.end()) {
         return accepted.end();
     }
 

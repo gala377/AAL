@@ -5,30 +5,31 @@
 #include "BFS.h"
 #include <algorithm>
 #include <queue>
+#include <iostream>
 
-alghorithm::Bucket::Bucket(const generator::Bucket &other) : capacity(other.capacity) {
+algorithm::BFS::Bucket::Bucket(const generator::Bucket &other) : capacity(other.capacity) {
     for(auto &&brick : other.bricks) {
         bricks.insert(brick);
     }
 }
 
-bool alghorithm::Bucket::is_empty() {
+bool algorithm::BFS::Bucket::is_empty() {
     return bricks.empty();
 }
 
-bool alghorithm::Bucket::is_full() {
+bool algorithm::BFS::Bucket::is_full() {
     return bricks.size() == capacity;
 }
 
-bool alghorithm::Bucket::operator!=(const alghorithm::Bucket &other) const {
+bool algorithm::BFS::Bucket::operator!=(const algorithm::BFS::Bucket &other) const {
     return !(*this == other);
 }
 
-bool alghorithm::Bucket::operator==(const alghorithm::Bucket &other) const {
+bool algorithm::BFS::Bucket::operator==(const algorithm::BFS::Bucket &other) const {
     return capacity == other.capacity && bricks == other.bricks;
 }
 
-std::size_t alghorithm::Bucket::hash() {
+std::size_t algorithm::BFS::Bucket::hash() {
     std::size_t seed = bricks.size();
     for(auto& i : bricks) {
         seed ^= std::hash<int>{}(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -36,30 +37,44 @@ std::size_t alghorithm::Bucket::hash() {
     return seed;
 }
 
-alghorithm::Bucket::Bucket(const alghorithm::Bucket &other) :
+algorithm::BFS::Bucket::Bucket(const algorithm::BFS::Bucket &other) :
     capacity(other.capacity), bricks(other.bricks) {
 
 }
 
 
-alghorithm::BFS::BFS(const generator::Test &t) : k(t.k), initial(t) {
+algorithm::BFS::BFS(const generator::Test &t) : k(t.k), initial(t) {
 
 }
 
-int alghorithm::BFS::run() {
-    std::queue<State> pending;
-    pending.push(this->initial);
+int algorithm::BFS::run() {
+    std::queue<std::pair<State, int>> pending;
+    pending.push(std::make_pair(this->initial, 0));
 
     while(!pending.empty()) {
-        State current = pending.front();
+        auto current = pending.front();
         pending.pop();
-        visited.insert(current.hash());
 
+        //std::cout << "Current state: " << current.first.hash() << "\n";
+        //std::cout << "Deep: " << current.second << "\n";
+        if(current.first.resolved()) {
+            return current.second;
+        }
+
+
+        std::vector<State> possible_next = gen_states(current.first);
+        for (auto &&next : possible_next) {
+            if(!visited.count(next.hash())) {
+                auto new_state = std::make_pair(next, current.second+1);
+                pending.push(new_state);
+                visited.insert(new_state.first.hash());
+            }
+        }
     }
-
+    return -1;
 }
 
-std::vector<alghorithm::State> alghorithm::BFS::gen_states(alghorithm::State &s) {
+std::vector<algorithm::BFS::State> algorithm::BFS::gen_states(algorithm::BFS::State &s) {
     std::vector<State> states;
     for (int i = 0; i < s.buckets.size(); ++i) {
         for (auto &&brick: s.buckets[i].bricks) {
@@ -78,17 +93,17 @@ std::vector<alghorithm::State> alghorithm::BFS::gen_states(alghorithm::State &s)
 }
 
 
-alghorithm::State::State(const generator::Test &t) {
+algorithm::BFS::State::State(const generator::Test &t) {
     for (auto &&bucket : t.buckets) {
-        buckets.emplace_back(Bucket(bucket));
+        buckets.push_back(Bucket(bucket));
     }
 }
 
-bool alghorithm::State::operator!=(const alghorithm::State &other) const {
+bool algorithm::BFS::State::operator!=(const algorithm::BFS::State &other) const {
     return !(*this != other);
 }
 
-bool alghorithm::State::operator==(const alghorithm::State &other) const {
+bool algorithm::BFS::State::operator==(const algorithm::BFS::State &other) const {
     if(buckets.size() != other.buckets.size())
         return false;
     for (int i = 0; i < buckets.size(); ++i) {
@@ -98,7 +113,7 @@ bool alghorithm::State::operator==(const alghorithm::State &other) const {
     return true;
 }
 
-std::size_t alghorithm::State::hash() {
+std::size_t algorithm::BFS::State::hash() {
     std::size_t seed = buckets.size();
     for(auto& i : buckets) {
         seed ^= i.hash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -106,7 +121,8 @@ std::size_t alghorithm::State::hash() {
     return seed;
 }
 
-alghorithm::State alghorithm::State::move(int from_index, int to_index, int color) const {
+
+algorithm::BFS::State algorithm::BFS::State::move(int from_index, int to_index, int color) const {
     State new_state(*this);
 
     new_state.buckets[to_index].bricks.insert(color);
@@ -116,8 +132,18 @@ alghorithm::State alghorithm::State::move(int from_index, int to_index, int colo
     return new_state;
 }
 
-alghorithm::State::State(const alghorithm::State &other) {
+algorithm::BFS::State::State(const algorithm::BFS::State &other) {
     for (auto &&bucket : other.buckets) {
         buckets.push_back(Bucket(bucket));
     }
+}
+
+bool algorithm::BFS::State::resolved() const {
+    for (auto &&bucket : buckets) {
+        for (auto &&brick : bucket.bricks) {
+                if(bucket.bricks.count(brick) > 1)
+                    return false;
+        }
+    }
+    return true;
 }

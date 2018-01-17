@@ -10,43 +10,43 @@
 #include <unordered_set>
 #include "generator.h"
 
-namespace alghorithm {
-
-    class Bucket {
-    public:
-        std::multiset<int> bricks;
-        int capacity;
-
-        Bucket(const Bucket& other);
-        explicit Bucket(const generator::Bucket& other);
-
-        bool is_empty();
-        bool is_full();
-
-        bool operator==(const Bucket& other) const;
-        bool operator!=(const Bucket& other) const;
-
-        std::size_t hash();
-    };
-
-    class State {
-    public:
-        std::vector<Bucket> buckets;
-
-        State(const State& other);
-        explicit State(const generator::Test &t);
-
-
-        bool operator==(const State &other) const;
-        bool operator!=(const State &other) const;
-
-        std::size_t hash();
-
-        State move (int from_index, int to_index, int color) const;
-    };
-
+namespace algorithm {
     class BFS {
     public:
+        class Bucket {
+        public:
+            std::multiset<int> bricks;
+            int capacity;
+
+            Bucket(const Bucket& other);
+            explicit Bucket(const generator::Bucket& other);
+
+            bool is_empty();
+            bool is_full();
+
+            bool operator==(const Bucket& other) const;
+            bool operator!=(const Bucket& other) const;
+
+            std::size_t hash();
+        };
+
+        class State {
+        public:
+            std::vector<BFS::Bucket> buckets;
+
+            State(const State& other);
+            explicit State(const generator::Test &t);
+
+
+            bool operator==(const State &other) const;
+            bool operator!=(const State &other) const;
+
+            bool resolved() const;
+            std::size_t hash();
+
+            State move (int from_index, int to_index, int color) const;
+        };
+
         explicit BFS(const generator::Test &t);
 
         int run();
