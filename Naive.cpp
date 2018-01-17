@@ -4,6 +4,7 @@
 
 #include "Naive.h"
 #include <iostream>
+#include <algorithm>
 
 namespace algorithm {
 
@@ -14,24 +15,25 @@ namespace algorithm {
     }
 
     int Naive::run() {
-        bool move_made = false;
         int total_moves = 0;
+        int iteration = 0;
         while (true) {
+            bool move_made = false;
             for (int i = 0; i < buckets.size(); ++i) {
                 int moves_made = move_unneeded_bricks(i, *this);
-                move_made = move_made ? move_made : bool(moves_made);
+                move_made = move_made || bool(moves_made);
                 total_moves += moves_made;
             }
 
-            if (!move_made) {
+            if (!move_made || iteration >= iteration_limit) {
                 total_moves = -1;
                 break;
             }
-            move_made = false;
 
             if(resolved()) {
                 break;
             }
+            ++iteration;
         }
         return total_moves;
     }
@@ -42,7 +44,10 @@ namespace algorithm {
             for (int j = 0; j < alg.buckets.size(); ++j) {
                 auto needed = alg.buckets[j].accepted.find(unneeded);
                 if (needed != alg.buckets[j].accepted_end() and !alg.buckets[j].is_full()) {
-                    moves_made = move(bucket_index, j, alg);
+                    moves_made = move(bucket_index, j, unneeded, alg);
+                    if(moves_made) {
+                        return moves_made;
+                    }
                 }
             }
         }
@@ -70,24 +75,62 @@ namespace algorithm {
         return out;
     }
 
-    int move(int ab_index, int bb_index, Naive &alg) {
+    int move(int ab_index, int bb_index, int color_index, Naive &alg) {
         int moves_made = 0;
         if(abs(ab_index - bb_index) <= alg.buckets.size()/2) {
             if(bb_index < ab_index) {
-                for (int i = bb_index; i < ab_index; ++i) {
-                    //todo move rigth
-                }
+                moves_made = move_left(ab_index, bb_index, alg);
+                moves_made = !moves_made ? move_right(ab_index, bb_index, alg) : moves_made;
             } else {
-                //move left
+                moves_made = move_right(ab_index, bb_index, alg);
+                moves_made = !moves_made ? move_left(ab_index, bb_index, alg) : moves_made;
             }
         } else {
             if(bb_index < ab_index) {
-                //move left
+                moves_made = move_right(ab_index, bb_index, alg);
+                moves_made = !moves_made ? move_left(ab_index, bb_index, alg) : moves_made;
             } else {
-                //move right
+                moves_made = move_left(ab_index, bb_index, alg);
+                moves_made = !moves_made ? move_right(ab_index, bb_index, alg) : moves_made;
             }
         }
+        if(moves_made) {
+            auto set_it = alg.buckets[ab_index].unneeded.find(color_index);
+            alg.buckets[ab_index].unneeded.erase(set_it);
+
+            auto vec_it = std::find(alg.buckets[ab_index].bricks.begin(), alg.buckets[ab_index].bricks.end(), color_index);
+            if(vec_it == alg.buckets[ab_index].bricks.end())
+                std::cout << "\nERROROROROROR\n";
+            alg.buckets[ab_index].bricks.erase(vec_it);
+
+            alg.buckets[bb_index].accepted.erase(color_index);
+            alg.buckets[bb_index].bricks.push_back(color_index);
+        }
         return moves_made;
+    }
+
+    int move_left(int ab_index, int bb_index, Naive &alg) {
+        int moves = 0;
+        while(ab_index != bb_index) {
+            if(alg.buckets[--ab_index].is_full()) {
+                return 0;
+            }
+            ab_index = ab_index < 0 ? alg.buckets.size()-1 : ab_index;
+            ++moves;
+        }
+        return moves;
+    }
+
+    int move_right(int ab_index, int bb_index, Naive &alg) {
+        int moves = 0;
+        while(ab_index != bb_index) {
+            if(alg.buckets[++ab_index].is_full()) {
+                return 0;
+            }
+            ab_index %= alg.buckets.size();
+            ++moves;
+        }
+        return moves;
     }
 
     bool Naive::resolved() {
@@ -99,6 +142,7 @@ namespace algorithm {
         return true;
     }
 
+
     Bucket::Bucket(const generator::Bucket &other, int k) : generator::Bucket(other) {
         int countmap[k] = {0};
         for (auto &brick : bricks) {
@@ -106,7 +150,8 @@ namespace algorithm {
         }
         for (int i = 0; i < k; ++i) {
             if (countmap[i] > 1) {
-                unneeded.insert(i);
+                for(int j = 1; j < countmap[i]; ++j)
+                    unneeded.insert(i);
             } else if (countmap[i] == 0) {
                 accepted.insert(i);
             }

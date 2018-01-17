@@ -11,10 +11,11 @@ namespace algorithm {
 
     class Bucket : public generator::Bucket {
     public:
+
         Bucket(const generator::Bucket& other, int k);
 
         std::set<int> accepted;
-        std::set<int> unneeded;
+        std::multiset<int> unneeded;
 
         auto accepted_end() -> decltype(accepted.end());
 
@@ -22,12 +23,17 @@ namespace algorithm {
 
     class Naive {
     public:
+        const int iteration_limit = 1000000;
+
         explicit Naive(const generator::Test &t);
 
         int run();
         bool resolved();
 
-        friend int move(int ab_index, int bb_index, Naive& alg);
+        friend int move(int ab_index, int bb_index, int color_index, Naive& alg);
+        friend int move_right(int ab_index, int bb_index, Naive& alg);
+        friend int move_left(int ab_index, int bb_index, Naive& alg);
+
         friend std::ostream &operator<<(std::ostream &out, const Naive &n);
         friend int move_unneeded_bricks(int bucket_index, Naive& alg);
     private:

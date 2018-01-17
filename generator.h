@@ -79,6 +79,13 @@ namespace generator {
  *
  * @param n - liczba pojemników
  * @param k - liczba kolorów (łącznie nie może być więcej niż n klocków danego koloru)
+ * @param min_p - minimalna pojemność jaką może mieć pojemnik
+ * @param max_p - maksymalna pojemość jaką może mieć pojemnik
+ * @param min_free_space - ile miejca minimalnie powinno zostać w każdym pojemniku
+ * @param max_free_space - ile wolnego miejsca może być maksymalnie w jednym pojemniku
+ * @param shuffle_moves - ile losowych ruchów powinno się wykonać
+ *
+ * @return returns problem test to resolve
  *
  */
     Test generate_test(int n, int k, int min_p, int max_p, int min_free_space, int max_free_space, int shuffle_moves);
