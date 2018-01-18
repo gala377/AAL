@@ -13,6 +13,8 @@
 namespace algorithm {
     class BFS {
     public:
+        const int iteration_limit = 10000;
+
         class Bucket {
         public:
             std::multiset<int> bricks;
@@ -34,6 +36,7 @@ namespace algorithm {
         public:
             std::vector<BFS::Bucket> buckets;
 
+
             State(const State& other);
             explicit State(const generator::Test &t);
 
@@ -44,18 +47,18 @@ namespace algorithm {
             bool resolved() const;
             std::size_t hash();
 
-            State move (int from_index, int to_index, int color) const;
+            virtual State move (int from_index, int to_index, int color) const;
         };
 
         explicit BFS(const generator::Test &t);
 
-        int run();
-    private:
+        virtual int run();
+    protected:
         int k;
         State initial;
         std::set<std::size_t> visited;
 
-        std::vector<State> gen_states(State& s);
+        virtual std::vector<State> gen_states(State& s);
     };
 
 }

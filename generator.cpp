@@ -3,6 +3,7 @@
 //
 #include <algorithm>
 #include <iostream>
+#include <istream>
 #include "generator.h"
 #include <fstream>
 
@@ -81,18 +82,32 @@ namespace generator {
     }
 
     std::ostream &operator<<(std::ostream &out, const Test &t) {
-        for (int i = 0; i < t.buckets.size(); ++i) {
-            unsigned long free_space = t.buckets[i].capacity - t.buckets[i].bricks.size();
-            std::cout << "\nBucket " << i << "\tCapacity: " << t.buckets[i].capacity << "\tFree: " << free_space
-                      << "\n";
-            for (auto const &brick : t.buckets[i].bricks) {
-                std::cout << brick << "\t";
-            }
-            for (free_space; free_space > 0; --free_space) {
-                std::cout << "x\t";
+        out << t.buckets.size() << " " << t.k << std::endl;
+        for (auto &&bucket : t.buckets) {
+            out << bucket.capacity << " " << bucket.bricks.size() << std::endl;
+            for (auto &&brick : bucket.bricks) {
+                out << brick << std::endl;
             }
         }
         return out;
+    }
+
+    std::istream &operator>>(std::istream &in, Test &t) {
+        int n = 0;
+        in >> n;
+        in >> t.k;
+        for (int i = 0; i < n; ++i) {
+            int cap, occupied;
+            in >> cap >> occupied;
+            std::vector<int> bricks;
+            for (int j = 0; j < occupied; ++j) {
+                int brick;
+                in >> brick;
+                bricks.push_back(brick);
+            }
+            t.buckets.emplace_back(Bucket(cap, bricks));
+        }
+        return in;
     }
 
 

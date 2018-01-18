@@ -51,12 +51,11 @@ int algorithm::BFS::run() {
     std::queue<std::pair<State, int>> pending;
     pending.push(std::make_pair(this->initial, 0));
 
+    int iteration = 0;
     while(!pending.empty()) {
         auto current = pending.front();
         pending.pop();
 
-        //std::cout << "Current state: " << current.first.hash() << "\n";
-        //std::cout << "Deep: " << current.second << "\n";
         if(current.first.resolved()) {
             return current.second;
         }
@@ -69,6 +68,10 @@ int algorithm::BFS::run() {
                 pending.push(new_state);
                 visited.insert(new_state.first.hash());
             }
+        }
+        ++iteration;
+        if(iteration > iteration_limit) {
+            break;
         }
     }
     return -1;
