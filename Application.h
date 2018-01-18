@@ -12,7 +12,7 @@
 
 class Application {
 public:
-    using Result=std::pair<unsigned long long int, unsigned long long int>
+    using Result=std::pair<unsigned long long int, unsigned long long int>;
     using Performance=std::array<std::vector<Result>, 3>;
 
     class InsufficientNumberOfParameters : public std::exception {};
@@ -61,7 +61,7 @@ private:
     void print_table(Performance p, std::array<int, 3> unresolved);
     Result get_average(std::vector<Result> v);
     template <typename T>
-    std::pair<auto, unsigned long long int> time_it(T&& func) -> decltype(func());
+    std::pair<int, unsigned long long int> time_it(T&& func);
 };
 
 

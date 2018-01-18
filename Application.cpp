@@ -70,7 +70,7 @@ void Application::start() {
         case Flags::m2:
             run_random();
         case Flags::m3:
-            break;
+            run_test_case();
         default:
             reader.print_usage();
             break;
@@ -187,10 +187,10 @@ void Application::run_test_case() {
 }
 
 template<typename T>
-std::pair<auto, unsigned long long int> Application::time_it(T &&func) -> decltype(func()){
+std::pair<int, unsigned long long int> Application::time_it(T &&func) {
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now() ;
 
-    auto res = func();
+    int res = func();
 
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now() ;
 
@@ -205,6 +205,7 @@ void Application::create_and_run_test(int start, int step, int num_of_steps, int
     std::array<int, 3> unresolved = {0, 0, 0};
     for (int i = 0; i < num_of_steps; ++i) {
         for(int j = 0; j < instances; ++j) {
+            std::cout << "generating test: " << start + step*i << "." << j <<"\n";
             generator::Test t = generator::generate_test(start + step * i,
                                                          start + step * i,
                                                          3,
@@ -212,24 +213,28 @@ void Application::create_and_run_test(int start, int step, int num_of_steps, int
                                                          1,
                                                          4,
                                                          100);
+            std::cout << "Naive... ";
             auto fin = time_it(std::bind(&algorithm::Naive::run, algorithm::Naive(t)));
-            if (fin == -1) {
+            if (fin.first == -1) {
                 unresolved[0] += 1;
             } else {
-                performances[0].push_back(fin);
+                performances[0].emplace_back(fin);
             }
+            std::cout <<"Done\nA*... ";
             fin = time_it(std::bind(&algorithm::AStar::run, algorithm::AStar(t)));
-            if (fin == -1) {
+            if (fin.first == -1) {
                 unresolved[1] += 1;
             } else {
-                performances[1].push_back(fin);
+                performances[1].emplace_back(fin);
             }
+            std::cout << "Done\nBFS... ";
             fin = time_it(std::bind(&algorithm::BFS::run, algorithm::BFS(t)));
-            if (fin == -1) {
+            if (fin.first == -1) {
                 unresolved[2] += 1;
             } else {
-                performances[2].push_back(fin);
+                performances[2].emplace_back(fin);
             }
+            std::cout << "Done\n";
         }
     }
     print_table(performances, unresolved);
@@ -248,14 +253,20 @@ void Application::print_table(Application::Performance p, std::array<int, 3> unr
             std::cout << "BFS:\t";
                 break;
         }
-
-
+        Result avg = get_average(p[i]);
+        std::cout << avg.second << "\t" << avg.first  << "\t" << unresolved[i] << "\n";
     }
 }
 
 Application::Result Application::get_average(std::vector<Application::Result> v) {
     Result average;
-
+    for (auto &&item : v) {
+        average.first += item.first;
+        average.second += item.second;
+    }
+    average.first /= v.size();
+    average.second /= v.size();
+    return average;
 }
 
 
