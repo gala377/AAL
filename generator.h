@@ -67,7 +67,7 @@ namespace generator {
         void dump_to_file(std::string filename);
 
         friend std::ostream &operator<<(std::ostream &out, const Test &t);
-        friend std::istream &operator>>(std::istream &in, const Test &t);
+        friend std::istream &operator>>(std::istream &in, Test &t);
     };
 
 

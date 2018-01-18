@@ -48,11 +48,6 @@ int algorithm::AStar::run() {
         auto current = pending.top();
         pending.pop();
 
-        Compare c;
-//        std::cout << "State: " << current.first.hash() << "\n";
-        std::cout << "Depth: " << current.second << "\n";
-        std::cout << "Cost: " << c.cost(current.first, current.second);
-
         if(current.first.resolved()) {
             return current.second;
         }
