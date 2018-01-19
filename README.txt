@@ -1,5 +1,9 @@
 Rafał Galczak 277292
 
+Użycie programu
+
+    Wywołanie programu zwyczajnie wypisze help.
+
 Specyfikacja problemu
 
     Danych jest n ponumerowanych kolejno pojemników. W pojemnikach znajdują
@@ -78,6 +82,7 @@ Przewodnik po źródłach
                       Bucket, State
     AStar.h/cpp     - namespace algorothm - Klasa rozwiązania A*, wraz z pomocniczymi strukturami
                       Bucket, State, Comperator <- (dla kojejki priorytetowej).
+    main.cpp        - zainicjowanie i odpalenie klasy aplikacji.
 
 
 Decyzje projektowe

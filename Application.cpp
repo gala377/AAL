@@ -30,9 +30,26 @@ Modes:
     -m1: read test from stream, write output to stream.
         Example:
             -m1 << in.txt >> out.txt
-    -m2: generate random test and solve it
-    -m3: generate n random tests and solve them
-         write stats.
+    -m2: generate random test and solve it.
+         Flags:
+            -n              - number of buckets (default=10)
+            -k              - number of colors (default=10)
+           --min-p          - minimal capacity a bucket can have (default=3)
+           --max-p          - maximum capacity a bucket can have (default=10)
+           --min-free-space - minimum free space a bucket can have (default=1)
+           --max-free-space - maximum free space a bucket can have (default=4)
+           --shuffle-moves  - how many moves wil be made to shuffle
+                              the color bricks in test (default=100)
+         Example:
+            -m2 -n 100 -k 20 --shuffle-moves 1000 --min-p 5
+    -m3: generate n random tests and solve them.
+         Then write statistics for each of the algorithms.
+         Flags:
+            -gs             - n and k of the initial test
+            -s              - step of n between next test case
+            -t              - number of test cases, increments n and k by step for each one
+            -r              - number of test for each n
+
     )";
 }
 
@@ -267,6 +284,52 @@ Application::Result Application::get_average(std::vector<Application::Result> v)
     average.first /= v.size();
     average.second /= v.size();
     return average;
+}
+
+
+void Application::calculate_table() {
+    int unresolved = 0;
+    const int instances = 15;
+    const int num_of_steps = 1;
+    int start = 8;
+    int step = 1;
+    std::array<std::vector<Result>, num_of_steps> results;
+
+    for (int i = 0; i < num_of_steps; ++i) {
+        for(int j = 0; j < instances; ++j) {
+            std::cout << "generating test: " << start + step*i << "." << j <<"\n";
+            generator::Test t = generator::generate_test(start + step * i,
+                                                         5,
+                                                         3,
+                                                         10,
+                                                         1,
+                                                         4,
+                                                         100);
+            auto fin = time_it(std::bind(&algorithm::BFS::run, algorithm::BFS(t)));
+            if (fin.first == -1) {
+                unresolved += 1;
+            } else {
+                results[i].emplace_back(fin);
+            }
+        }
+    }
+
+    std::vector<Result> avg;
+    for (auto &&result : results) {
+        Result average;
+        for (auto &&item : result) {
+            average.first += item.first;
+            average.second += item.second;
+        }
+        average.first /= result.size();
+        average.second /= result.size();
+        avg.push_back(average);
+    }
+
+    for (int l = 0; l < avg.size(); ++l) {
+        std::cout << start + step*l << "\t" << avg[l].second << "\t" << avg[l].first <<"\n";
+    }
+
 }
 
 

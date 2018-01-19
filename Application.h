@@ -53,6 +53,9 @@ public:
     void run_test_from_stream();
     void run_random();
     void run_test_case();
+
+    void calculate_table();
+
 private:
     CommandLineReader reader;
     std::unordered_map<std::string, Flags> flags_map;
